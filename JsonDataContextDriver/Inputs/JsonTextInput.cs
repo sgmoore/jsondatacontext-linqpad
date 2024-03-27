@@ -11,7 +11,7 @@ using JsonDataContextDriver;
 
 namespace JsonDataContextDriver
 {
-    [ImplementPropertyChanged]
+    [AddINotifyPropertyChangedInterface]
     public class JsonTextInput : IJsonInput
     {
         public string InputGuid { get; set; }
@@ -103,5 +103,7 @@ namespace JsonDataContextDriver
 
         [JsonIgnore]
         public List<string> Errors { get { return _generatedClass == null || _generatedClass.Success ? new List<string>() : new List<string> {  _generatedClass.Error.Message }; } }
+
+        public string DefaultConnectionName => null;
     }
 }

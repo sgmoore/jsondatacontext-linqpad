@@ -14,7 +14,7 @@ using Xamasoft.JsonClassGenerator;
 
 namespace JsonDataContextDriver
 {
-    [ImplementPropertyChanged]
+    [AddINotifyPropertyChangedInterface]
     public class JsonUrlInput : IJsonInput
     {
         public string Name { get; set; }
@@ -134,6 +134,8 @@ namespace JsonDataContextDriver
 
         [JsonIgnore]
         public List<string> Errors { get; set; }
+
+        public string DefaultConnectionName => Name;
 
         private static string GetContextMethod(JsonUrlGeneratedClass c)
         {

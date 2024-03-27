@@ -16,7 +16,7 @@ using Xamasoft.JsonClassGenerator;
 
 namespace JsonDataContextDriver
 {
-    [ImplementPropertyChanged]
+    [AddINotifyPropertyChangedInterface]
     public class JsonFileInput : IJsonInput
     {
         public string InputPath { get; set; }
@@ -166,13 +166,13 @@ namespace JsonDataContextDriver
             }
         }
 
-        private List<JsonFileGeneratedClass> _generatedClasses = new List<JsonFileGeneratedClass>(); 
+        private List<JsonFileGeneratedClass> _generatedClasses = new List<JsonFileGeneratedClass>();
         public List<IGeneratedClass> GeneratedClasses { get { return _generatedClasses.OfType<IGeneratedClass>().ToList(); } }
         public List<ExplorerItem> ExplorerItems { get; set; }
         public List<string> NamespacesToAdd { get; set; }
 
         public List<string> ContextProperties => _generatedClasses
-            .Where(c=> c.Success)
+            .Where(c => c.Success)
             .Select(c =>
                 String.Format(
                     "public IEnumerable<{0}.{1}> {2}s {{ get {{ return GetFileJsonInput<{0}.{1}>(@\"{3}\"); }} }}",
@@ -180,8 +180,10 @@ namespace JsonDataContextDriver
             .ToList();
 
         public List<string> Errors => _generatedClasses
-            .Where(c=> !c.Success)
+            .Where(c => !c.Success)
             .Select(e => String.Format("  {0} - {1}", e.DataFilePath, e.Error.Message))
             .ToList();
+
+        public string DefaultConnectionName => InputPath;
     }
 }

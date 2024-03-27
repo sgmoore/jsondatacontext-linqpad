@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+	
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net46;net6.0-windows</TargetFrameworks>
+		<UseWpf>true</UseWpf>
+		<UseWindowsForms>true</UseWindowsForms>
+		<AssemblyName>JsonDataContextDriver</AssemblyName>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageTags>linqpaddriver</PackageTags>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<DefineConstants>NETCORE</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="linqpad-samples\**" />
+	  <EmbeddedResource Remove="linqpad-samples\**" />
+	  <None Remove="linqpad-samples\**" />
+	  <Page Remove="linqpad-samples\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="LINQPad.Reference" Version="1.*" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+		<Reference Include="System.Xaml">
+			<RequiredTargetFramework>4.0</RequiredTargetFramework>
+		</Reference>
+		<Reference Include="WindowsBase" />
+		<Reference Include="PresentationCore" />
+		<Reference Include="PresentationFramework" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="ConnectionDialog.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</None>
+	</ItemGroup>	
+
+	<Target Name="PostBuild1" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net6.0-windows'">
+		<Exec Command="xcopy /i/y/s &quot;$(TargetDir)*.*&quot; &quot;%25LocalAppData%25\\LINQPad\\Drivers\\DataContext\\NetCore\\$(TargetName)&quot;" />
+	</Target>
+
+	<Target Name="PostBuild2" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net46'">
+		<Exec Command="xcopy /i/y/s &quot;$(TargetDir)*.*&quot; &quot;%25LocalAppData%25\\LINQPad\\Drivers\\DataContext\\4.6\\$(TargetName) (no-strong-name)&quot;" />
+	</Target>
+
+</Project>

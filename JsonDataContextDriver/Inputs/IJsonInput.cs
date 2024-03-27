@@ -12,5 +12,7 @@ namespace JsonDataContextDriver
         List<string> NamespacesToAdd { get; }
         List<string> ContextProperties { get; } 
         List<string> Errors { get; }
+
+        string DefaultConnectionName { get; }
     }
 }

@@ -99,10 +99,17 @@ namespace JsonDataContextDriver
 
             OkButton.Click += (sender, args) =>
             {
+                System.Diagnostics.Debugger.Launch();
+
                 var jss = new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.All};
-                var inputDefs = JsonConvert.SerializeObject(_jsonInputs.ToList(), jss);
+                var inputs = _jsonInputs.ToList();
+                var inputDefs = JsonConvert.SerializeObject(inputs, jss);
 
                 _connectionInfo.DisplayName = ConnectionNameTextBox.Text;
+                if (String.IsNullOrEmpty(_connectionInfo.DisplayName) && inputs.Count == 1)
+                {
+                    _connectionInfo.DisplayName = inputs.Single().DefaultConnectionName;
+                }
                 _connectionInfo.DriverData.SetElementValue("inputDefs", inputDefs);
 
                 DialogResult = true;
