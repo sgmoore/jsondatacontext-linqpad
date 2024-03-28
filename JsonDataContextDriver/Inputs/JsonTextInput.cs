@@ -56,6 +56,7 @@ namespace JsonDataContextDriver
                     OutputStream = outputWriter,
                     NoHelperClass = true,
                     UseProperties = true,
+                    UsePascalCase = true,
                     GeneratePartialClasses = true
                 };
 
