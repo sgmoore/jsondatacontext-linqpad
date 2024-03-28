@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET6_0_OR_GREATER
+#else
+using System;
 using System.Windows.Forms;
 
 // ------------------------------------------------------------------
@@ -151,3 +153,4 @@ namespace FolderSelect
         private IntPtr _hwnd;
     }
 }
+#endif

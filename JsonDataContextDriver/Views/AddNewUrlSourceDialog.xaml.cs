@@ -23,7 +23,12 @@ using Path = System.IO.Path;
 
 namespace JsonDataContextDriver
 {
+#if NET6_0_OR_GREATER
     [AddINotifyPropertyChangedInterface]
+#else
+    [ImplementPropertyChanged]
+#endif
+
     public partial class AddNewUrlSourceDialog : Window
     {
         private readonly SolidColorBrush _goodBrush = new SolidColorBrush(Colors.White);
@@ -143,7 +148,12 @@ namespace JsonDataContextDriver
         }
     }
 
+#if NET6_0_OR_GREATER
     [AddINotifyPropertyChangedInterface]
+#else
+    [ImplementPropertyChanged]
+#endif
+
     public class WebRequestHeader
     {
         public string Name { get; set; }

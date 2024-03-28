@@ -8,12 +8,16 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+#if NET6_0_OR_GREATER
+#else
 using FolderSelect;
+#endif
 using Microsoft.Win32;
 
 namespace JsonDataContextDriver
@@ -54,11 +58,19 @@ namespace JsonDataContextDriver
 
             BrowseButton.Click += (sender, args) =>
             {
+#if NET6_0_OR_GREATER
+                var fileDialog = new FolderBrowserDialog();
+                var result = fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+                if (result)
+                    PathTextBox.Text = fileDialog.SelectedPath;
+#else
+
                 var fileDialog = new FolderSelectDialog();
                 var result = fileDialog.ShowDialog();
-
                 if (result)
                     PathTextBox.Text = fileDialog.FileName;
+#endif
+
             };
 
             CancelButton.Click += (sender, args) => DialogResult = false;

@@ -16,7 +16,11 @@ using Xamasoft.JsonClassGenerator;
 
 namespace JsonDataContextDriver
 {
+#if NET6_0_OR_GREATER
     [AddINotifyPropertyChangedInterface]
+#else
+    [ImplementPropertyChanged]
+#endif
     public class JsonFileInput : IJsonInput
     {
         public string InputPath { get; set; }
@@ -184,6 +188,17 @@ namespace JsonDataContextDriver
             .Select(e => String.Format("  {0} - {1}", e.DataFilePath, e.Error.Message))
             .ToList();
 
-        public string DefaultConnectionName => InputPath;
+        public string DefaultConnectionName
+        {
+            get
+            {
+                var path = InputPath;
+
+                if (Directory.Exists(InputPath) && !String.IsNullOrEmpty(Mask) && !String.Equals(Mask, "*.*"))
+                    path += "\\" + Mask;
+
+                return path;
+            }
+        }
     }
 }

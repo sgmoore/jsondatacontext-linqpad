@@ -14,7 +14,12 @@ using Xamasoft.JsonClassGenerator;
 
 namespace JsonDataContextDriver
 {
+#if NET6_0_OR_GREATER
     [AddINotifyPropertyChangedInterface]
+#else
+  [ImplementPropertyChanged]
+#endif
+
     public class JsonUrlInput : IJsonInput
     {
         public string Name { get; set; }

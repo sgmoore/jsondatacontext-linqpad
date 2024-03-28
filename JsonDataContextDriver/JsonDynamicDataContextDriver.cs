@@ -19,33 +19,6 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace JsonDataContextDriver
 {
-    //public class StaticDriver : StaticDataContextDriver
-    //{
-    //    static StaticDriver()
-    //    {
-    //        // Uncomment the following code to attach to Visual Studio's debugger when an exception is thrown:
-    //        //AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-    //        //{
-    //        //	if (args.Exception.StackTrace.Contains ("JsonDataContextDriver"))
-    //        //		Debugger.Launch ();
-    //        //};
-    //    }
-
-    //    public override string Name => "(Name for your driver)";
-
-    //    public override string Author => "(Your name)";
-
-    //    public override string GetConnectionDescription(IConnectionInfo cxInfo)
-    //        => "(Description for this connection)";
-
-    //    public override bool ShowConnectionDialog(IConnectionInfo cxInfo, ConnectionDialogOptions dialogOptions)
-    //        => new ConnectionDialog(cxInfo).ShowDialog() == true;
-
-    //    public override List<ExplorerItem> GetSchema(IConnectionInfo cxInfo, Type customType)
-    //    {
-    //        // TODO - implement
-    //        return new ExplorerItem[0].ToList();
-    //    }
 
     public class JsonDynamicDataContextDriver : DynamicDataContextDriver
     {
@@ -59,10 +32,9 @@ namespace JsonDataContextDriver
             };
         }
 
-
         public override string Name
         {
-            get { return "JSON DataContext Provider!"; }
+            get { return "JSON DataContext Provider"; }
         }
 
         public override string Author
@@ -75,13 +47,19 @@ namespace JsonDataContextDriver
             return String.IsNullOrWhiteSpace(cxInfo.DisplayName) ? "Unnamed JSON Data Context" : cxInfo.DisplayName;
         }
 
+#if NET6_0_OR_GREATER
         public override bool ShowConnectionDialog(IConnectionInfo cxInfo, ConnectionDialogOptions dialogOptions)
         {
-            var dbg = typeof(Xceed.Wpf.Toolkit.DropDownButton).FullName;
+            var _ = typeof(Xceed.Wpf.Toolkit.DropDownButton);
        
             try
             {
-                return internalShowConnectionDialog(cxInfo, dialogOptions);
+                var dialog = new ConnectionDialog();
+                dialog.SetContext(cxInfo, dialogOptions.IsNewConnection);
+
+                var result = dialog.ShowDialog();
+                return result == true;
+                // return internalShowConnectionDialog(cxInfo, dialogOptions);
             }
             catch (Exception ex)
             {
@@ -90,29 +68,20 @@ namespace JsonDataContextDriver
             }
             return false;
         }
-        private bool internalShowConnectionDialog(IConnectionInfo cxInfo, ConnectionDialogOptions dialogOptions)
+
+#else
+      
+        public override bool ShowConnectionDialog(IConnectionInfo cxInfo, bool isNewConnection)
         {
 
             var dialog = new ConnectionDialog();
-            dialog.SetContext(cxInfo, dialogOptions.IsNewConnection);
+            dialog.SetContext(cxInfo, isNewConnection);
 
             var result = dialog.ShowDialog();
             return result == true;
+
         }
-
-
-        //[Obsolete]
-        //public override bool ShowConnectionDialog(IConnectionInfo cxInfo, bool isNewConnection)
-        //{
-        //    System.Diagnostics.Debugger.Launch();
-
-        //    //var dialog = new ConnectionDialog();
-        //    //dialog.SetContext(cxInfo, isNewConnection);
-
-        //    //var result = dialog.ShowDialog();
-        //    //return result == true;
-        //    return false;
-        //}
+#endif
 
         public override IEnumerable<string> GetAssembliesToAdd(IConnectionInfo cxInfo)
         {
@@ -152,12 +121,12 @@ namespace JsonDataContextDriver
             ref string typeName)
         {
             _nameSpacesToAdd = new List<string>();
-            
+
             var xInputs = cxInfo.DriverData.Element("inputDefs");
             if (xInputs == null)
                 return new List<ExplorerItem>();
 
-            var jss = new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.All};
+            var jss = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
             var inputDefs = JsonConvert.DeserializeObject<List<IJsonInput>>(xInputs.Value, jss).ToList();
 
             var ns = nameSpace;
@@ -174,8 +143,8 @@ namespace JsonDataContextDriver
                     .ToList();
 
             // add namespaces
-            _nameSpacesToAdd.AddRange(inputDefs.SelectMany(i=>i.NamespacesToAdd));
-            _nameSpacesToAdd.AddRange(classDefinitions.Select(c=> c.Namespace));
+            _nameSpacesToAdd.AddRange(inputDefs.SelectMany(i => i.NamespacesToAdd));
+            _nameSpacesToAdd.AddRange(classDefinitions.Select(c => c.Namespace));
 
             // remove the error'd inputs
             var classGenErrors = inputDefs.SelectMany(i => i.Errors).ToList();
@@ -189,7 +158,7 @@ namespace JsonDataContextDriver
             classDefinitions
                 .GroupBy(c => c.ClassName)
                 .Where(c => c.Count() > 1)
-                .SelectMany(cs => cs.Select((c, i) => new {Class = c, Index = i + 1}).Skip(1))
+                .SelectMany(cs => cs.Select((c, i) => new { Class = c, Index = i + 1 }).Skip(1))
                 .ToList()
                 .ForEach(c => c.Class.ClassName += "_" + c.Index);
 
@@ -216,6 +185,8 @@ namespace JsonDataContextDriver
 
             var contextWithCode = String.Join("\r\n\r\n", usings, context, code);
 
+#if NET6_0_OR_GREATER
+
             var referencedAssemblies = GetCoreFxReferenceAssemblies(cxInfo)            
             .Concat(new[]
             {
@@ -229,27 +200,42 @@ namespace JsonDataContextDriver
                 OutputPath = assemblyToBuild.CodeBase,
                 SourceCode = new string[] { contextWithCode }
             });
-
          
-
-            if (!result.Errors.Any())
+            bool errors = result.Errors.Any();
+#else
+            var provider = new CSharpCodeProvider();
+            var parameters = new CompilerParameters
             {
+                IncludeDebugInformation = true,
+                OutputAssembly = assemblyToBuild.CodeBase,
+                ReferencedAssemblies =
+                {
+                    typeof (JsonDataContextBase).Assembly.Location,
+                    typeof (JsonConvert).Assembly.Location,
+
+                    typeof (UriBuilder).Assembly.Location,
+                    typeof (HttpUtility).Assembly.Location
+                }
+            };
+
+            var result = provider.CompileAssemblyFromSource(parameters, contextWithCode);
+
+            bool errors = result.Errors.HasErrors;
+
+#endif
+            if (!errors)
+            { 
                 // Pray to the gods of UX for redemption..
                 // We Can Do Better
                 if (classGenErrors.Any())
                     MessageBox.Show(String.Format("Couldn't process {0} inputs:\r\n{1}", classGenErrors.Count,
                         String.Join(Environment.NewLine, classGenErrors)));
 
-                var myType = DataContextDriver.LoadAssemblySafely(assemblyToBuild.CodeBase).GetType(String.Format("{0}.{1}", nameSpace, typeName));
-
-                var res = LinqPadSampleCode.GetSchema(myType)
-                    .Concat(inputDefs.SelectMany(i=>i.ExplorerItems??new List<ExplorerItem>()))
-                    .ToList();
-
-
-
-                return res;
-               
+                return LinqPadSampleCode.GetSchema(
+                    DataContextDriver.LoadAssemblySafely(assemblyToBuild.CodeBase)
+                    .GetType(String.Format("{0}.{1}", nameSpace, typeName)))
+                .Concat(inputDefs.SelectMany(i => i.ExplorerItems ?? new List<ExplorerItem>()))
+                .ToList();
             }
             else
             {

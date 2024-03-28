@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET6_0_OR_GREATER
+#else
+using System;
 using System.Reflection;
 
 namespace FolderSelect
@@ -192,3 +194,4 @@ namespace FolderSelect
         #endregion
     }
 }
+#endif

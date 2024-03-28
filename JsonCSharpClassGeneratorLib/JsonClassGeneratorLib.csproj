@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net6.0-windows;net46</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Xamasoft.JsonClassGenerator</RootNamespace>
     <AssemblyName>Xamasoft.JsonClassGenerator</AssemblyName>

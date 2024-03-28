@@ -99,8 +99,6 @@ namespace JsonDataContextDriver
 
             OkButton.Click += (sender, args) =>
             {
-                System.Diagnostics.Debugger.Launch();
-
                 var jss = new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.All};
                 var inputs = _jsonInputs.ToList();
                 var inputDefs = JsonConvert.SerializeObject(inputs, jss);
