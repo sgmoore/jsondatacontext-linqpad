@@ -53,7 +53,7 @@
     <AssemblyTitle>JsonDynamicDataContextDriver</AssemblyTitle>
     <Product>JsonDynamicDataContextDriver</Product>
     <Copyright>Copyright © 2015</Copyright>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
+	<Deterministic>false</Deterministic>
+	  
   </PropertyGroup>
 </Project>

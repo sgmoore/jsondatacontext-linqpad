@@ -7,6 +7,8 @@
 		<AssemblyName>JsonDataContextDriver</AssemblyName>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageTags>linqpaddriver</PackageTags>
+		<Version>1.0.*</Version>
+		<Deterministic>false</Deterministic>		
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -18,6 +20,16 @@
 	  <EmbeddedResource Remove="linqpad-samples\**" />
 	  <None Remove="linqpad-samples\**" />
 	  <Page Remove="linqpad-samples\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="ConnectionDialog.xaml.cs" />
+	  <Compile Remove="ConnectionProperties.cs" />
+	  <Compile Remove="StaticDriver.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Remove="ConnectionDialog.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>

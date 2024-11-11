@@ -7,6 +7,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>False</SignAssembly>
@@ -17,8 +18,7 @@
     <Company>Xamasoft</Company>
     <Product>Json Class Generator</Product>
     <Copyright>Copyright © Xamasoft 2010-2013</Copyright>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
   <ItemGroup>
     <None Include="JsonClassHelper.cs" />
