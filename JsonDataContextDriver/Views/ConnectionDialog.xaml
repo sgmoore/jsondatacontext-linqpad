@@ -55,6 +55,7 @@
             <Button Name="OkButton" Content="OK" HorizontalAlignment="Left" Margin="10,0,10,0" Width="50" />
             <Button Name="CancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="0,0,10,0" Width="50" />
         </StackPanel>
+        <CheckBox x:Name="chkOpenInNotePad" Content="Open Generated Code In NotePad" Width="579"/>
 
     </StackPanel>
 </Window>

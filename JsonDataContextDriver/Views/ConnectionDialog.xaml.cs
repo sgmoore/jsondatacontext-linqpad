@@ -109,6 +109,7 @@ namespace JsonDataContextDriver
                     _connectionInfo.DisplayName = inputs.Single().DefaultConnectionName;
                 }
                 _connectionInfo.DriverData.SetElementValue("inputDefs", inputDefs);
+                _connectionInfo.DriverData.SetElementValue("OpenInNotePad", chkOpenInNotePad.IsChecked);
 
                 DialogResult = true;
             };

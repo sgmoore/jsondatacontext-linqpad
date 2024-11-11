@@ -231,6 +231,9 @@ namespace JsonDataContextDriver
                     MessageBox.Show(String.Format("Couldn't process {0} inputs:\r\n{1}", classGenErrors.Count,
                         String.Join(Environment.NewLine, classGenErrors)));
 
+                if ((bool?) cxInfo.DriverData.Element("OpenInNotePad") ?? false)
+                    NotepadHelper.ShowMessage(contextWithCode, "Generated source code");
+
                 return LinqPadSampleCode.GetSchema(
                     DataContextDriver.LoadAssemblySafely(assemblyToBuild.CodeBase)
                     .GetType(String.Format("{0}.{1}", nameSpace, typeName)))
