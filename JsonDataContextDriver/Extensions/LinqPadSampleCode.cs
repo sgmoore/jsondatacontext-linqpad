@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using LINQPad.Extensibility.DataContext;
+// using static LINQPad.Extensibility.DataContext.DataContextDriver;
 
 namespace JsonDataContextDriver
 {
@@ -17,69 +16,78 @@ namespace JsonDataContextDriver
 
             // We'll start by retrieving all the properties of the custom type that implement IEnumerable<T>:
             var topLevelProps =
-                (
-                    from prop in customType.GetProperties()
-                    where prop.PropertyType != typeof (string)
+            (
+                from prop in customType.GetProperties()
+                where prop.PropertyType != typeof(string)
+                // Display all properties of type IEnumerable<T> (except for string!)
+                
+                let genericArgument = prop.PropertyType.GetGenericArguments().FirstOrDefault()
 
-                    // Display all properties of type IEnumerable<T> (except for string!)
-                    let ienumerableOfT = prop.PropertyType.GetInterface("System.Collections.Generic.IEnumerable`1") 
-                    
-                    where ienumerableOfT != null || prop.PropertyType.Name == "IEnumerable`1" // why? 
-                    orderby prop.Name
+                where prop.PropertyType.GetInterface("IEnumerable") != null && genericArgument != null
 
-                    select new ExplorerItem(prop.Name, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
-                    {
-                        IsEnumerable = true,
-                        ToolTipText = prop.PropertyType.Name,
+                orderby prop.Name
 
-                        // Store the entity type to the Tag property. We'll use it later.
-                        Tag = prop.PropertyType.GetGenericArguments()[0]
-                    }
-                    ).ToList();
+                select new ExplorerItem(prop.Name, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
+                {
+                    IsEnumerable = true,
+                    ToolTipText = prop.Name,
+                    DragText = prop.Name,
+
+                    // Store the entity type to the Tag property. We'll use it later.
+                    Tag = genericArgument
+                }
+
+            ).ToList();
 
             // Create a lookup keying each element type to the properties of that type. This will allow
             // us to build hyperlink targets allowing the user to click between associations:
-            var elementTypeLookup = topLevelProps.ToLookup(tp => (Type) tp.Tag);
+            var elementTypeLookup = topLevelProps.ToLookup(tp => (Type)tp.Tag);
 
             // Populate the columns (properties) of each entity:
             foreach (ExplorerItem table in topLevelProps)
-                table.Children = ((Type) table.Tag)
-                    .GetProperties()
-                    .Select(childProp => GetChildItem(elementTypeLookup, childProp))
-                    .OrderBy(childItem => childItem.Kind)
-                    .ToList();
+            {
+                Type parentType = (Type)table.Tag;
+                var props = parentType.GetProperties().Select(p => GetChildItem(elementTypeLookup, p.Name, p.PropertyType));
+                var fields = parentType.GetFields().Select(f => GetChildItem(elementTypeLookup, f.Name, f.FieldType));
+                table.Children = props.Union(fields).OrderBy(childItem => childItem.Kind).ToList();
+            }
 
             return topLevelProps;
         }
 
-        private static ExplorerItem GetChildItem(ILookup<Type, ExplorerItem> elementTypeLookup, PropertyInfo childProp)
+        private static ExplorerItem GetChildItem(ILookup<Type, ExplorerItem> elementTypeLookup, string childPropName, Type childPropType)
         {
             // If the property's type is in our list of entities, then it's a Many:1 (or 1:1) reference.
             // We'll assume it's a Many:1 (we can't reliably identify 1:1s purely from reflection).
-            if (elementTypeLookup.Contains(childProp.PropertyType))
-                return new ExplorerItem(childProp.Name, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne)
+            if (elementTypeLookup.Contains(childPropType))
+                return new ExplorerItem(childPropName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne)
                 {
-                    HyperlinkTarget = elementTypeLookup[childProp.PropertyType].First(),
+                    HyperlinkTarget = elementTypeLookup[childPropType].First(),
                     // FormatTypeName is a helper method that returns a nicely formatted type name.
-                    ToolTipText = childProp.PropertyType.Name
+                    ToolTipText = FormatTypeName(childPropType, true),
+                    DragText = childPropName
                 };
 
-            // Is the property's type a collection of entities?
-            Type ienumerableOfT = childProp.PropertyType.GetInterface("System.Collections.Generic.IEnumerable`1");
-            if (ienumerableOfT != null)
+            // Is the property's type a collection of entities?	 
+            if (childPropType.GetInterface("IEnumerable") != null)
             {
-                Type elementType = ienumerableOfT.GetGenericArguments()[0];
-                if (elementTypeLookup.Contains(elementType))
-                    return new ExplorerItem(childProp.Name, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany)
+                var elementType = childPropType.GetGenericArguments().FirstOrDefault();
+                if (elementType != null && elementTypeLookup.Contains(elementType))
+                {
+                    return new ExplorerItem(childPropName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany)
                     {
                         HyperlinkTarget = elementTypeLookup[elementType].First(),
-                        ToolTipText = elementType.Name
+                        ToolTipText = FormatTypeName(elementType, true) ,
+                        DragText = childPropName
                     };
+                }
             }
 
             // Ordinary property:
-            return new ExplorerItem(childProp.Name + " (" + (childProp.PropertyType.Name) + ")",
-                ExplorerItemKind.Property, ExplorerIcon.Column);
+            return new ExplorerItem(childPropName + " (" + FormatTypeName(childPropType, false) + ")",
+                ExplorerItemKind.Property, ExplorerIcon.Column ) { DragText = childPropName};
         }
+
+
     }
 }
