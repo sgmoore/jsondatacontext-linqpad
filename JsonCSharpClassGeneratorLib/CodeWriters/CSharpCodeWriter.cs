@@ -201,7 +201,7 @@ namespace Xamasoft.JsonClassGenerator.CodeWriters
                     sw.WriteLine(prefix + "/// </summary>");
                 }
 
-                if (true || config.UsePascalCase)
+                if (!config.SkipJsonPropertyAttribute)
                 {
                     sw.WriteLine(prefix + "[JsonProperty(\"{0}\")]", field.JsonMemberName);
                 }

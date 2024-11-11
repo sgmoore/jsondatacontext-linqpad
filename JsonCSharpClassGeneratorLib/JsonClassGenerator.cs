@@ -34,6 +34,7 @@ namespace Xamasoft.JsonClassGenerator
         public TextWriter OutputStream { get; set; }
         public bool AlwaysUseNullableValues { get; set; }
         public bool ExamplesInDocumentation { get; set; }
+        public bool SkipJsonPropertyAttribute { get; set; }
 
         private bool used = false;
         public bool UseNamespaces { get { return Namespace != null; } }

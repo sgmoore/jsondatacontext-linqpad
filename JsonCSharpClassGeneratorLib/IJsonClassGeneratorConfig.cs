@@ -24,5 +24,6 @@ namespace Xamasoft.JsonClassGenerator
         bool UseNamespaces { get; }
         bool ExamplesInDocumentation { get; set; }
         bool GeneratePartialClasses { get; set; }
+        bool SkipJsonPropertyAttribute { get; set; }
     }
 }
