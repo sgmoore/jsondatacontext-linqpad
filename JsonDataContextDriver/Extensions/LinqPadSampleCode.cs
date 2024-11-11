@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LINQPad.Extensibility.DataContext;
-// using static LINQPad.Extensibility.DataContext.DataContextDriver;
+using static LINQPad.Extensibility.DataContext.DataContextDriver;
 
 namespace JsonDataContextDriver
 {
