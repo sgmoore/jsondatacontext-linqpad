@@ -180,7 +180,7 @@ namespace JsonDataContextDriver
             .Where(c => c.Success)
             .Select(c =>
                 String.Format(
-                    "public IEnumerable<{0}.{1}> {2}s {{ get {{ return GetFileJsonInput<{0}.{1}>(@\"{3}\"); }} }}",
+                    "public IEnumerable<{0}.{1}> {2} {{ get {{ return GetFileJsonInput<{0}.{1}>(@\"{3}\"); }} }}",
                     c.Namespace, c.ClassName, c.ClassName, c.DataFilePath))
             .ToList();
 
