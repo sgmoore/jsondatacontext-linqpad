@@ -1,20 +1,13 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using System.Windows.Input;
-using System.Xml.Linq;
 using JsonDataContext;
 using JsonDataContextDriver.Notepad;
 using LINQPad.Extensibility.DataContext;
-using Microsoft.CSharp;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xamasoft.JsonClassGenerator;
 using MessageBox = System.Windows.MessageBox;
 
 namespace JsonDataContextDriver
